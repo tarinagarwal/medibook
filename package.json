@@ -7,6 +7,7 @@
     "dev:user": "cd user-frontend && npm run dev",
     "dev:admin": "cd admin-frontend && npm run dev",
     "dev:hospital": "cd hospital-frontend && npm run dev",
+    "all": "start-all.bat",
     "install:all": "npm install && cd backend && npm install && cd ../user-frontend && npm install && cd ../admin-frontend && npm install && cd ../hospital-frontend && npm install"
   },
   "keywords": [
