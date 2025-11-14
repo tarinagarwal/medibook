@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AuthRequest } from "../types/api.types";
 import { HospitalService } from "../services/hospital.service";
+import prisma from "../lib/prisma";
 
 export class HospitalController {
   /**
