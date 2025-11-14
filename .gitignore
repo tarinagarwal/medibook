@@ -1,52 +1,73 @@
-
+# Dependencies
 node_modules/
 
+# Build outputs
 dist/
 build/
 .next/
 out/
 
+# Database
 prisma/dev.db
 prisma/dev.db-journal
 prisma/migrations/
-!prisma/schema.prisma  # Keep schema under version control
+!prisma/schema.prisma
 
+# Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Backend specific
+backend/.env
+backend/dist/
+
+# Frontend specific
+user-frontend/.env
+user-frontend/dist/
+admin-frontend/.env
+admin-frontend/dist/
+hospital-frontend/.env
+hospital-frontend/dist/
+
+# Logs
 logs/
 *.log
 npm-debug.log*
-frontend-backend.md
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# OS
 .DS_Store
 Thumbs.db
 
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
+# Cache
 .cache/
 .next/cache/
 .tmp/
 temp/
 *.tmp
 
+# Testing
 coverage/
 .nyc_output/
 
+# Docker
 docker-compose.override.yml
 .dockerignore
 *.pid
 
+# Certificates & Archives
 *.pem
 *.key
 *.crt

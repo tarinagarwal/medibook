@@ -1,0 +1,20 @@
+{
+  "name": "medibook",
+  "version": "1.0.0",
+  "description": "Multi-Hospital Patient Appointment Booking System",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:user": "cd user-frontend && npm run dev",
+    "dev:admin": "cd admin-frontend && npm run dev",
+    "dev:hospital": "cd hospital-frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../user-frontend && npm install && cd ../admin-frontend && npm install && cd ../hospital-frontend && npm install"
+  },
+  "keywords": [
+    "appointment",
+    "booking",
+    "hospital",
+    "healthcare"
+  ],
+  "author": "",
+  "license": "ISC"
+}
