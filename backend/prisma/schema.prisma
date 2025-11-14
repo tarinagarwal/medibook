@@ -9,4 +9,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be added here as needed
+// Admin Model
+model Admin {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String   @unique
+  password  String   // Hashed with bcrypt
+  email     String   @unique
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  verifiedHospitals Hospital[] @relation("VerifiedBy")
+}
+
+// Hospital Model
+model Hospital {
+  id                    String              @id @default(auto()) @map("_id") @db.ObjectId
+  
+  // Step 1: Initial Registration
+  accountType           AccountType         // Hospital/Clinic/Diagnostic Center
+  facilityName          String
+  registrationNumber    String              @unique
+  contactEmail          String              @unique
+  contactPhone          String
+  address               String
+  
+  // Step 2: Facility Details
+  description           String?
+  specializations       String[]            // Array of specializations
+  operatingHours        Json?               // {monday: {open: "9:00", close: "17:00"}, ...}
+  latitude              Float?
+  longitude             Float?
+  
+  // Step 3: Document Verification
+  licenseDocumentUrl    String?             // UploadThing URL
+  certificationUrls     String[]            // Array of UploadThing URLs
+  facilityPhotoUrls     String[]            // Array of UploadThing URLs
+  
+  // Status & Verification
+  verificationStatus    VerificationStatus  @default(PENDING)
+  verifiedAt            DateTime?
+  verifiedBy            String?             @db.ObjectId // Admin ID
+  rejectionReason       String?
+  
+  // Registration Progress
+  registrationStep      Int                 @default(1) // 1, 2, or 3
+  isComplete            Boolean             @default(false)
+  
+  // Authentication
+  password              String              // Hashed
+  isActive              Boolean             @default(false)
+  
+  // Timestamps
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  // Relations
+  verifier              Admin?              @relation("VerifiedBy", fields: [verifiedBy], references: [id])
+}
+
+// Enums
+enum AccountType {
+  HOSPITAL
+  CLINIC
+  DIAGNOSTIC_CENTER
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
