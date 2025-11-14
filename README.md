@@ -112,11 +112,37 @@ Each application has its own `.env` file. Copy the `.env.example` files and conf
 
 ```env
 PORT=3001
+NODE_ENV=development
+
+# CORS Origins
 USER_FRONTEND_URL=http://localhost:4000
 ADMIN_FRONTEND_URL=http://localhost:4001
 HOSPITAL_FRONTEND_URL=http://localhost:4002
-DATABASE_URL=your_database_url
-JWT_SECRET=your_secret_key
+
+# Database
+DATABASE_URL=mongodb+srv://username:password@cluster.mongodb.net/medibook-db
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Admin Credentials
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
+ADMIN_EMAIL=admin@medibook.com
+
+# UploadThing (Get from uploadthing.com)
+UPLOADTHING_SECRET=your_uploadthing_secret
+UPLOADTHING_APP_ID=your_uploadthing_app_id
+
+# SMTP (Gmail example)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+SMTP_FROM=noreply@medibook.com
 ```
 
 **User Frontend** (`user-frontend/.env`):
@@ -187,33 +213,63 @@ Hospital Portal will run on http://localhost:4002
 
 Base URL: `http://localhost:3001/api`
 
+### General
+
 - `GET /health` - Health check endpoint
 
-## Features (To Be Implemented)
+### Admin Routes
+
+- `POST /admin/login` - Admin login
+- `GET /admin/hospitals` - Get all hospitals (with filters)
+- `GET /admin/hospitals/:id` - Get hospital details
+- `PATCH /admin/hospitals/:id/approve` - Approve hospital
+- `PATCH /admin/hospitals/:id/reject` - Reject hospital
+- `GET /admin/stats` - Get dashboard statistics
+
+### Hospital Routes
+
+- `POST /hospital/register/step1` - Initial registration
+- `POST /hospital/register/step2/:hospitalId` - Facility details
+- `POST /hospital/register/step3/:hospitalId` - Document upload
+- `POST /hospital/login` - Hospital login
+- `GET /hospital/profile` - Get hospital profile (protected)
+- `PATCH /hospital/profile` - Update profile (protected)
+- `GET /hospital/verification-status` - Check verification status (protected)
+
+## Features
 
 ### Patient Portal (Port 4000)
 
-- User registration and login
-- Browse hospitals and doctors
-- Book appointments
-- View appointment history
-- Manage profile
+- User registration and login (Coming Soon)
+- Browse hospitals and doctors (Coming Soon)
+- Book appointments (Coming Soon)
+- View appointment history (Coming Soon)
+- Manage profile (Coming Soon)
 
-### Admin Dashboard (Port 4001)
+### Admin Dashboard (Port 4001) ✅
 
-- Manage hospitals
-- Manage users
-- View all appointments
-- System analytics
-- User management
+- ✅ Admin authentication with JWT
+- ✅ Hospital verification management
+- ✅ View all registered hospitals
+- ✅ Approve/Reject hospital registrations
+- ✅ Real-time dashboard statistics
+- ✅ Filter hospitals by status
+- ✅ Search hospitals by name, email, or registration number
+- ✅ View detailed hospital information and documents
 
-### Hospital Portal (Port 4002)
+### Hospital Portal (Port 4002) ✅
 
-- Hospital staff login
-- Manage doctors and departments
-- View and manage appointments
-- Patient records
-- Hospital analytics
+- ✅ Multi-step hospital registration
+  - Step 1: Basic information (facility name, type, contact details)
+  - Step 2: Facility details (description, specializations, operating hours)
+  - Step 3: Document upload (license, certifications, photos)
+- ✅ Hospital authentication with JWT
+- ✅ Verification status tracking
+- ✅ Email notifications (registration, approval, rejection)
+- ✅ Secure document storage with UploadThing
+- Manage doctors and departments (Coming Soon)
+- View and manage appointments (Coming Soon)
+- Patient records (Coming Soon)
 
 ## Development
 
@@ -222,12 +278,85 @@ Base URL: `http://localhost:3001/api`
 - `npm run dev` - Start development server with nodemon
 - `npm run build` - Build TypeScript to JavaScript
 - `npm start` - Run production build
+- `npx prisma generate` - Generate Prisma client
+- `npx prisma db push` - Push schema to database
 
 ### Frontend Scripts (All three frontends)
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
+
+## Quick Start Guide
+
+### 1. Setup Backend
+
+```bash
+cd backend
+npm install
+npx prisma generate
+npm run dev
+```
+
+### 2. Setup Admin Frontend
+
+```bash
+cd admin-frontend
+npm install
+npm run dev
+```
+
+Login with:
+
+- Username: `admin`
+- Password: `admin123` (or whatever you set in .env)
+
+### 3. Setup Hospital Frontend
+
+```bash
+cd hospital-frontend
+npm install
+npm run dev
+```
+
+Visit http://localhost:4002 and click "Register Hospital" to start the registration process.
+
+## Hospital Registration Flow
+
+1. **Step 1 - Initial Registration**
+
+   - Select account type (Hospital/Clinic/Diagnostic Center)
+   - Enter facility name and registration number
+   - Provide contact details
+   - Create password
+
+2. **Step 2 - Facility Details**
+
+   - Add facility description
+   - List specializations
+   - Set operating hours for each day
+   - Add location coordinates (optional)
+
+3. **Step 3 - Document Upload**
+
+   - Upload license document (required)
+   - Upload certifications (optional)
+   - Upload facility photos (optional)
+   - Submit for verification
+
+4. **Verification**
+   - Admin reviews the application
+   - Email notification sent on approval/rejection
+   - Hospital can login after approval
+
+## Admin Verification Process
+
+1. Login to admin dashboard (http://localhost:4001)
+2. View pending hospitals in verification queue
+3. Click on a hospital to view full details
+4. Review documents, photos, and facility information
+5. Approve or reject with reason
+6. Hospital receives email notification
 
 ## Contributing
 
