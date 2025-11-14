@@ -1,4 +1,57 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import apiClient from "../lib/api-client";
+import { useAuthStore } from "../stores/authStore";
+
+interface Stats {
+  totalHospitals: number;
+  pendingHospitals: number;
+  approvedHospitals: number;
+  rejectedHospitals: number;
+}
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, clearAuth } = useAuthStore();
+  const [stats, setStats] = useState<Stats>({
+    totalHospitals: 0,
+    pendingHospitals: 0,
+    approvedHospitals: 0,
+    rejectedHospitals: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    fetchStats();
+  }, [user]);
+
+  const fetchStats = async () => {
+    try {
+      const response = await apiClient.get("/admin/stats");
+      if (response.data.success) {
+        setStats(response.data.data);
+      }
+    } catch (error: any) {
+      toast.error("Failed to fetch statistics");
+      if (error.response?.status === 401) {
+        clearAuth();
+        navigate("/login");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    clearAuth();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-olive-50">
       <header className="bg-gradient-to-r from-olive-700 to-olive-900 text-white p-4 md:p-6 shadow-lg sticky top-0 z-50">
@@ -11,7 +64,10 @@ const Dashboard = () => {
               {import.meta.env.VITE_APP_NAME}
             </h1>
           </div>
-          <button className="w-full sm:w-auto px-4 py-2 bg-white text-olive-700 rounded-lg hover:bg-olive-50 transition font-semibold">
+          <button
+            onClick={handleLogout}
+            className="w-full sm:w-auto px-4 py-2 bg-white text-olive-700 rounded-lg hover:bg-olive-50 transition font-semibold"
+          >
             Sign Out
           </button>
         </div>
@@ -27,102 +83,153 @@ const Dashboard = () => {
           </p>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <div className="bg-gradient-to-br from-olive-50/90 to-olive-100/70 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-olive-200/50 hover:shadow-lg transition-all">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-base md:text-xl font-semibold text-olive-900">
-                  Total Hospitals
-                </h3>
-                <svg
-                  className="w-6 h-6 md:w-8 md:h-8 text-olive-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-              <p className="text-3xl md:text-4xl font-bold text-olive-600">
-                500+
-              </p>
-              <p className="text-xs md:text-sm text-gray-600 mt-1">
-                Active facilities
-              </p>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-olive-600 border-t-transparent"></div>
+              <p className="mt-4 text-gray-600">Loading statistics...</p>
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+                <div className="bg-gradient-to-br from-olive-50/90 to-olive-100/70 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-olive-200/50 hover:shadow-lg transition-all">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base md:text-xl font-semibold text-olive-900">
+                      Total Hospitals
+                    </h3>
+                    <svg
+                      className="w-6 h-6 md:w-8 md:h-8 text-olive-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-3xl md:text-4xl font-bold text-olive-600">
+                    {stats.totalHospitals}
+                  </p>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">
+                    Registered facilities
+                  </p>
+                </div>
 
-            <div className="bg-gradient-to-br from-olive-100/80 to-olive-200/60 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-olive-200/50 hover:shadow-lg transition-all">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-base md:text-xl font-semibold text-olive-900">
-                  Active Users
-                </h3>
-                <svg
-                  className="w-6 h-6 md:w-8 md:h-8 text-olive-700"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <div
+                  className="bg-gradient-to-br from-yellow-50/90 to-yellow-100/70 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-yellow-200/50 hover:shadow-lg transition-all cursor-pointer"
+                  onClick={() => navigate("/hospitals?status=PENDING")}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-              </div>
-              <p className="text-3xl md:text-4xl font-bold text-olive-700">
-                50K+
-              </p>
-              <p className="text-xs md:text-sm text-gray-600 mt-1">
-                Registered patients
-              </p>
-            </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base md:text-xl font-semibold text-yellow-900">
+                      Pending
+                    </h3>
+                    <svg
+                      className="w-6 h-6 md:w-8 md:h-8 text-yellow-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-3xl md:text-4xl font-bold text-yellow-600">
+                    {stats.pendingHospitals}
+                  </p>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">
+                    Awaiting verification
+                  </p>
+                </div>
 
-            <div className="bg-gradient-to-br from-olive-50/80 to-olive-100/60 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-olive-200/50 hover:shadow-lg transition-all sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-base md:text-xl font-semibold text-olive-900">
-                  Appointments
-                </h3>
-                <svg
-                  className="w-6 h-6 md:w-8 md:h-8 text-olive-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <div
+                  className="bg-gradient-to-br from-green-50/90 to-green-100/70 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-green-200/50 hover:shadow-lg transition-all cursor-pointer"
+                  onClick={() => navigate("/hospitals?status=APPROVED")}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base md:text-xl font-semibold text-green-900">
+                      Approved
+                    </h3>
+                    <svg
+                      className="w-6 h-6 md:w-8 md:h-8 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-3xl md:text-4xl font-bold text-green-600">
+                    {stats.approvedHospitals}
+                  </p>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">
+                    Active facilities
+                  </p>
+                </div>
+
+                <div
+                  className="bg-gradient-to-br from-red-50/90 to-red-100/70 backdrop-blur-sm p-4 md:p-6 rounded-lg border border-red-200/50 hover:shadow-lg transition-all cursor-pointer"
+                  onClick={() => navigate("/hospitals?status=REJECTED")}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base md:text-xl font-semibold text-red-900">
+                      Rejected
+                    </h3>
+                    <svg
+                      className="w-6 h-6 md:w-8 md:h-8 text-red-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-3xl md:text-4xl font-bold text-red-600">
+                    {stats.rejectedHospitals}
+                  </p>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">
+                    Rejected applications
+                  </p>
+                </div>
               </div>
-              <p className="text-3xl md:text-4xl font-bold text-olive-600">
-                100K+
-              </p>
-              <p className="text-xs md:text-sm text-gray-600 mt-1">
-                Total bookings
-              </p>
-            </div>
-          </div>
+            </>
+          )}
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            <button className="p-4 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md text-sm md:text-base font-semibold">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            <button
+              onClick={() => navigate("/hospitals")}
+              className="p-4 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md text-sm md:text-base font-semibold"
+            >
               Manage Hospitals
             </button>
-            <button className="p-4 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md text-sm md:text-base font-semibold">
-              View Users
+            <button
+              onClick={() => navigate("/hospitals?status=PENDING")}
+              className="p-4 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition shadow-md text-sm md:text-base font-semibold"
+            >
+              Verification Queue
             </button>
-            <button className="p-4 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md text-sm md:text-base font-semibold">
-              Appointments
-            </button>
-            <button className="p-4 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md text-sm md:text-base font-semibold">
-              Analytics
+            <button
+              onClick={() => navigate("/hospitals?status=APPROVED")}
+              className="p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md text-sm md:text-base font-semibold"
+            >
+              Approved Hospitals
             </button>
           </div>
         </div>
