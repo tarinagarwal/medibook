@@ -289,7 +289,18 @@ Base URL: `http://localhost:3001/api`
 
 ## Quick Start Guide
 
-### 1. Setup Backend
+### 1. Setup UploadThing (Required for File Uploads)
+
+1. Go to [uploadthing.com](https://uploadthing.com) and create an account
+2. Create a new app in the dashboard
+3. Copy your **App ID** and **Secret** from the dashboard
+4. Add them to `backend/.env`:
+   ```env
+   UPLOADTHING_SECRET=sk_live_your_secret_here
+   UPLOADTHING_APP_ID=your_app_id_here
+   ```
+
+### 2. Setup Backend
 
 ```bash
 cd backend
@@ -298,7 +309,7 @@ npx prisma generate
 npm run dev
 ```
 
-### 2. Setup Admin Frontend
+### 3. Setup Admin Frontend
 
 ```bash
 cd admin-frontend
@@ -311,7 +322,7 @@ Login with:
 - Username: `admin`
 - Password: `admin123` (or whatever you set in .env)
 
-### 3. Setup Hospital Frontend
+### 4. Setup Hospital Frontend
 
 ```bash
 cd hospital-frontend
