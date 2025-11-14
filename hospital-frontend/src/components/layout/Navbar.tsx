@@ -53,12 +53,16 @@ const Navbar = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="px-4 py-2 text-olive-700 hover:text-olive-900 transition">
-              Sign In
-            </button>
-            <button className="px-6 py-2 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md">
-              Register Hospital
-            </button>
+            <a href="/login">
+              <button className="px-4 py-2 text-olive-700 hover:text-olive-900 transition">
+                Sign In
+              </button>
+            </a>
+            <a href="/register/step1">
+              <button className="px-6 py-2 bg-olive-600 text-white rounded-lg hover:bg-olive-700 transition shadow-md">
+                Register Hospital
+              </button>
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -116,12 +120,16 @@ const Navbar = () => {
               <a href="#contact" className="text-gray-700 hover:text-olive-600">
                 Contact
               </a>
-              <button className="px-4 py-2 text-olive-700 text-left">
-                Sign In
-              </button>
-              <button className="px-6 py-2 bg-olive-600 text-white rounded-lg hover:bg-olive-700">
-                Register Hospital
-              </button>
+              <a href="/login">
+                <button className="px-4 py-2 text-olive-700 text-left">
+                  Sign In
+                </button>
+              </a>
+              <a href="/register/step1">
+                <button className="px-6 py-2 bg-olive-600 text-white rounded-lg hover:bg-olive-700">
+                  Register Hospital
+                </button>
+              </a>
             </div>
           </div>
         )}
