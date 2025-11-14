@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import apiClient from "../../lib/api-client";
+import { useUploadThing } from "../../lib/uploadthing";
 
 const Step3Documents = () => {
   const navigate = useNavigate();
@@ -12,17 +13,10 @@ const Step3Documents = () => {
   const [certifications, setCertifications] = useState<string[]>([]);
   const [facilityPhotos, setFacilityPhotos] = useState<string[]>([]);
 
-  // Simulated file upload (replace with actual UploadThing integration)
-  const handleFileUpload = async (file: File, type: string) => {
-    // For now, we'll use a placeholder URL
-    // In production, integrate with UploadThing
-    return new Promise<string>((resolve) => {
-      setTimeout(() => {
-        const fakeUrl = `https://placeholder.com/${type}/${file.name}`;
-        resolve(fakeUrl);
-      }, 1000);
-    });
-  };
+  // UploadThing hooks
+  const { startUpload: startDocumentUpload } =
+    useUploadThing("documentUploader");
+  const { startUpload: startImageUpload } = useUploadThing("imageUploader");
 
   const handleLicenseUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -35,15 +29,18 @@ const Step3Documents = () => {
       return;
     }
 
-    toast.loading("Uploading license document...");
+    const toastId = toast.loading("Uploading license document...");
     try {
-      const url = await handleFileUpload(file, "license");
-      setLicenseDocument(url);
-      toast.dismiss();
-      toast.success("License document uploaded!");
+      const uploadedFiles = await startDocumentUpload([file]);
+      if (uploadedFiles && uploadedFiles.length > 0) {
+        setLicenseDocument(uploadedFiles[0].url);
+        toast.success("License document uploaded!", { id: toastId });
+      } else {
+        throw new Error("Upload failed");
+      }
     } catch (error) {
-      toast.dismiss();
-      toast.error("Failed to upload document");
+      toast.error("Failed to upload document", { id: toastId });
+      console.error("Upload error:", error);
     }
   };
 
@@ -58,15 +55,18 @@ const Step3Documents = () => {
       return;
     }
 
-    toast.loading("Uploading certification...");
+    const toastId = toast.loading("Uploading certification...");
     try {
-      const url = await handleFileUpload(file, "certification");
-      setCertifications([...certifications, url]);
-      toast.dismiss();
-      toast.success("Certification uploaded!");
+      const uploadedFiles = await startDocumentUpload([file]);
+      if (uploadedFiles && uploadedFiles.length > 0) {
+        setCertifications([...certifications, uploadedFiles[0].url]);
+        toast.success("Certification uploaded!", { id: toastId });
+      } else {
+        throw new Error("Upload failed");
+      }
     } catch (error) {
-      toast.dismiss();
-      toast.error("Failed to upload certification");
+      toast.error("Failed to upload certification", { id: toastId });
+      console.error("Upload error:", error);
     }
   };
 
@@ -79,15 +79,18 @@ const Step3Documents = () => {
       return;
     }
 
-    toast.loading("Uploading photo...");
+    const toastId = toast.loading("Uploading photo...");
     try {
-      const url = await handleFileUpload(file, "photo");
-      setFacilityPhotos([...facilityPhotos, url]);
-      toast.dismiss();
-      toast.success("Photo uploaded!");
+      const uploadedFiles = await startImageUpload([file]);
+      if (uploadedFiles && uploadedFiles.length > 0) {
+        setFacilityPhotos([...facilityPhotos, uploadedFiles[0].url]);
+        toast.success("Photo uploaded!", { id: toastId });
+      } else {
+        throw new Error("Upload failed");
+      }
     } catch (error) {
-      toast.dismiss();
-      toast.error("Failed to upload photo");
+      toast.error("Failed to upload photo", { id: toastId });
+      console.error("Upload error:", error);
     }
   };
 
@@ -191,9 +194,19 @@ const Step3Documents = () => {
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                         />
                       </svg>
-                      <span className="text-olive-900 font-medium">
-                        License uploaded
-                      </span>
+                      <div className="text-left">
+                        <span className="text-olive-900 font-medium block">
+                          License uploaded
+                        </span>
+                        <a
+                          href={licenseDocument}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-olive-600 hover:underline"
+                        >
+                          View document
+                        </a>
+                      </div>
                     </div>
                     <button
                       onClick={() => setLicenseDocument("")}
@@ -271,9 +284,19 @@ const Step3Documents = () => {
                       key={index}
                       className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
                     >
-                      <span className="text-sm text-gray-700">
-                        Certification {index + 1}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-700">
+                          Certification {index + 1}
+                        </span>
+                        <a
+                          href={cert}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-olive-600 hover:underline"
+                        >
+                          View
+                        </a>
+                      </div>
                       <button
                         onClick={() =>
                           setCertifications(
@@ -328,11 +351,11 @@ const Step3Documents = () => {
                 <div className="mt-3 grid grid-cols-3 gap-3">
                   {facilityPhotos.map((photo, index) => (
                     <div key={index} className="relative group">
-                      <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                        <span className="text-sm text-gray-500">
-                          Photo {index + 1}
-                        </span>
-                      </div>
+                      <img
+                        src={photo}
+                        alt={`Facility ${index + 1}`}
+                        className="aspect-square object-cover rounded-lg"
+                      />
                       <button
                         onClick={() =>
                           setFacilityPhotos(
