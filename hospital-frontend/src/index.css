@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* Olive color palette */
+@theme {
+  --color-olive-50: #f8f9f5;
+  --color-olive-100: #eef1e6;
+  --color-olive-200: #dde3cd;
+  --color-olive-300: #c5d0a8;
+  --color-olive-400: #a8b87d;
+  --color-olive-500: #8a9f5a;
+  --color-olive-600: #6d7f45;
+  --color-olive-700: #556338;
+  --color-olive-800: #454f2f;
+  --color-olive-900: #3a4229;
+}
