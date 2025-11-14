@@ -1,4 +1,6 @@
 import { Router } from "express";
+import adminRoutes from "./admin.routes";
+import hospitalRoutes from "./hospital.routes";
 
 const router = Router();
 
@@ -11,9 +13,8 @@ router.get("/health", (req, res) => {
   });
 });
 
-// Add your feature routes here
-// router.use('/appointments', appointmentRoutes);
-// router.use('/hospitals', hospitalRoutes);
-// router.use('/users', userRoutes);
+// Feature routes
+router.use("/admin", adminRoutes);
+router.use("/hospital", hospitalRoutes);
 
 export default router;
