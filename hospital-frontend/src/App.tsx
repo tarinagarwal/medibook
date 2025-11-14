@@ -7,6 +7,7 @@ import Step2Facility from "./pages/registration/Step2Facility";
 import Step3Documents from "./pages/registration/Step3Documents";
 import VerificationPending from "./pages/VerificationPending";
 import "./App.css";
+import "./uploadthing.css";
 
 function App() {
   return (
