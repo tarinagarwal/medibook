@@ -1,6 +1,7 @@
 import { Router } from "express";
 import adminRoutes from "./admin.routes";
 import hospitalRoutes from "./hospital.routes";
+import { uploadthingRoutes } from "./uploadthing.routes";
 
 const router = Router();
 
@@ -16,5 +17,8 @@ router.get("/health", (req, res) => {
 // Feature routes
 router.use("/admin", adminRoutes);
 router.use("/hospital", hospitalRoutes);
+
+// UploadThing routes
+router.use("/uploadthing", uploadthingRoutes);
 
 export default router;
